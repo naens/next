@@ -278,6 +278,14 @@ events."
       (let ((buffer (make-buffer)))
         (set-url-buffer url buffer)))))
 
+(defun send-signal (interface name &optional arg)
+  "Send a custom signal by name. For manual tests only."
+  (with-slots (host port url) interface
+    (let ((val (s-xml-rpc:xml-rpc-call
+                (s-xml-rpc:encode-xml-rpc-call name arg)
+                :host host :port port :url url)))
+      (format t "return value: ~a~&" val))))
+
 (import 'buffer-did-commit-navigation :s-xml-rpc-exports)
 (import 'buffer-did-finish-navigation :s-xml-rpc-exports)
 (import 'push-key-event :s-xml-rpc-exports)
