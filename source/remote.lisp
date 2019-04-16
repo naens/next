@@ -45,6 +45,12 @@
    (buffers :accessor buffers :initform (make-hash-table :test #'equal))
    (total-buffer-count :accessor total-buffer-count :initform 0)))
 
+(defun list-windows (interface)
+  "List the windows of the given interface. For dev purposes."
+  (maphash (lambda (key val)
+             (format t "~a ~a~&" key val))
+          (windows interface)))
+
 (defmethod host ((interface remote-interface))
   "Retrieve the host of the platform port dynamically.
 It's important that it is dynamic since the platform port can be reconfigured on
@@ -120,6 +126,13 @@ startup after the remote-interface was set up."
   (%xml-rpc-send interface "window.delete" (id window))
   (with-slots (windows) interface
     (remhash (id window) windows)))
+
+(defmethod window-delete ((interface remote-interface) (id integer))
+  "Delete a window by id (integer). Utility function, for dev purposes."
+  (assert (< id (total-window-count interface)))
+  (let ((window (gethash id (windows interface))))
+    (assert window)
+    (window-delete interface (gethash id window))))
 
 (defmethod window-active ((interface remote-interface))
   "Return the window object for the currently active window."
