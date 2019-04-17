@@ -299,6 +299,7 @@ events."
                 :host host :port port :url url)))
       (format t "return value: ~a~&" val))))
 
+;; Register xmlprc functions.
 (import 'buffer-did-commit-navigation :s-xml-rpc-exports)
 (import 'buffer-did-finish-navigation :s-xml-rpc-exports)
 (import 'push-key-event :s-xml-rpc-exports)
