@@ -299,6 +299,9 @@ events."
                 :host host :port port :url url)))
       (format t "return value: ~a~&" val))))
 
+(defun ping ()
+  (format t "ping~%"))
+
 ;; Register xmlprc functions.
 (import 'buffer-did-commit-navigation :s-xml-rpc-exports)
 (import 'buffer-did-finish-navigation :s-xml-rpc-exports)
@@ -308,6 +311,7 @@ events."
 (import 'minibuffer-javascript-call-back :s-xml-rpc-exports)
 (import 'window-will-close :s-xml-rpc-exports)
 (import 'make-buffers :s-xml-rpc-exports)
+(import 'ping :s-xml-rpc-exports)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Convenience methods and functions for Users of the API ;;
