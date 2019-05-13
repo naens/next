@@ -27,7 +27,7 @@
             (history-as-list root-node active-node))
     (finish-output)))
 
-(define-key *global-map* (key "M-p") #'print-history)
+(define-key (key "M-p") #'print-history)
 
 (define-command session-save ()
   "Save the session."
@@ -44,7 +44,7 @@
     (format *standard-output* "~&Session saved.")
     (finish-output)))
 
-(define-key *global-map* (key "M-s") #'session-save)
+(define-key (key "M-s") #'session-save)
 
 
 ;; returns (values <node> <active>)
@@ -72,24 +72,22 @@
   "Restore the session."
   (let ((buffers (alexandria:hash-table-values (buffers *interface*))))
     (with-open-file (stream "/tmp/session.txt")
-      (loop for s-exp = (read stream t)
-         while s-exp
-         do (progn
-              (multiple-value-bind (root-node active-node)
-                  (node-from-s-exp s-exp nil)
-                  (declare (ignore root-node))
-                (let ((buffer (make-buffer))
-                      (mode (make-instance 'document-mode
-                                           :name "Document-Mode"
-                                           :keymap *document-mode-map*
-                                           :active-node active-node)))
-                  (setf (mode buffer) mode)
-                  (setf (active-history-node mode) active-node)
-                  (set-url-buffer (car s-exp) buffer t)
-                  (set-active-buffer *interface* buffer))))))
+      (loop for s-exp = (read stream nil :eof)
+            until (eq s-exp :eof)
+            do (progn
+                 (multiple-value-bind (root-node active-node)
+                     (node-from-s-exp s-exp nil)
+                   (declare (ignore root-node))
+                   (log:info "Restoring" (first s-exp) active-node)
+                   (let* ((mode (make-instance 'document-mode
+                                               :active-node active-node))
+                          (buffer (make-buffer "default" mode)))
+                     (setf (active-history-node mode) active-node)
+                     (set-url-buffer (first s-exp) buffer 'disable-history)
+                     (set-active-buffer *interface* buffer))))))
     (loop for buffer in buffers
-       do (buffer-delete *interface* buffer)))
+          do (%%buffer-delete *interface* buffer)))
   (format *standard-output* "~&Session restored.")
   (finish-output))
 
-(define-key *global-map* (key "M-r") #'session-restore)
+(define-key (key "M-r") #'session-restore)
